@@ -4,7 +4,7 @@ import java.io.File
 
 
 fun main() {
-    println(File("src/main/resources/day1.txt").readLines().sumBy { fuelForMass(it.toInt()) })
+    println(File("res/day1.txt").readLines().sumBy { fuelForMass(it.toInt()) })
 }
 
 fun fuelForMass(i :Int): Int {
