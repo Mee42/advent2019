@@ -18,44 +18,18 @@
 package dev.mee42.day3
 
 import java.io.File
-import java.time.Duration
 import java.util.*
-import kotlin.system.measureNanoTime
 
 
 val file = File("res/day3.txt")
 
-fun <R> time(str :String, runner: () -> R):R{
-    var r :R? = null
-    val nano = measureNanoTime {
-        r = runner()
-    }
-    println(str.replace("()","" + Duration.ofNanos(nano).toSeconds() + "s " + Duration.ofNanos(nano).toMillisPart() + "ms"))
-    return r!!
-}
-
 fun main() {
 
-    val (points1, points2) = time("plotted wires in ()") { file.readLines().map(::plotWire) }
+    val (points1, points2) = file.readLines().map(::plotWire)
 
-//    val points1 = plotWire("R8,U5,L5,D3")
-//    val points2 = plotWire("U7,R6,D4,L4")
-
-//    val points1 = plotWire("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51")
-//    val points2 = plotWire("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7")
-
-
-    val hits = time("found hits in ()") {
-        points1.filterKeys { key -> points2.containsKey(key) }
-    }
-    println(hits)
-
-    // find the shortest distance to each of the hits
-    val maybe = time("calculated distance in ()") { hits.map { (point,i) ->
+    println(points1.filterKeys { key -> points2.containsKey(key) }.map { (point,i) ->
         i + points2.getValue(point) + 2
-    } }
-    println(maybe)
-    println("answer:" + maybe.min()!!)
+    }.min())
 
 }
 
