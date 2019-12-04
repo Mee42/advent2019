@@ -20,7 +20,6 @@ package dev.mee42.day3
 import java.io.File
 import java.time.Duration
 import java.util.*
-import kotlin.math.absoluteValue
 import kotlin.system.measureNanoTime
 
 
@@ -46,14 +45,14 @@ fun main() {
 //    val points2 = plotWire("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7")
 
 
-    val hits = time("found hits in ()") { points1.filter { points2.contains(it) } }
+    val hits = time("found hits in ()") {
+        points1.filterKeys { key -> points2.containsKey(key) }
+    }
     println(hits)
 
     // find the shortest distance to each of the hits
-    val maybe = time("calculated distance in ()") {hits.map { hit ->
-        val i1 = points1.indexOf(hit)
-        val i2 = points2.indexOf(hit)
-        i1 + i2 + 2
+    val maybe = time("calculated distance in ()") { hits.map { (point,i) ->
+        i + points2.getValue(point) + 2
     } }
     println(maybe)
     println("answer:" + maybe.min()!!)
@@ -70,9 +69,11 @@ data class Point(val x: Int, val y: Int){
     }
 }
 class Direction(val isOnXAxis: Boolean, val isPositive: Boolean)
-fun plotWire(strIn: String): List<Point> {
+fun plotWire(strIn: String): Map<Point,Int> {
+    var index = 0
     var current = Point(0,0)
-    return strIn.split(",")
+    val map = mutableMapOf<Point,Int>()
+    strIn.split(",")
         .map {
             when(it[0]) {
                 'R' -> Direction(isOnXAxis = true,   isPositive = true)
@@ -82,5 +83,6 @@ fun plotWire(strIn: String): List<Point> {
                 else -> error("you done fucked up")
             } to it.substring(1).toInt()
         }.flatMap { f -> Collections.nCopies(f.second,f.first) }
-        .map { current = current.next(it);current }
+        .forEach { current = current.next(it);map[current] = index++ }
+    return map
 }
