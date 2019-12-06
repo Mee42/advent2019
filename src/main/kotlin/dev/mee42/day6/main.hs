@@ -58,7 +58,12 @@ answer2part str = do
   let base = last $ filter (\x -> elem x you) santa
   let toSanta = (length santa) - (fromJust $ elemIndex base santa)
   let  toYou  = (length  you ) - (fromJust $ elemIndex base  you )
-  return $ toSanta + toYou
+  print santa
+  print you
+  print base
+  print toSanta
+  print toYou
+  return $ toSanta + toYou - 4
 
 answer1part :: String -> IO Int
 answer1part str = sum <$> (\x -> orbits 0 <$> x) <$> parse <$> lines <$> readFile str
