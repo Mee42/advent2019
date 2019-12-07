@@ -26,8 +26,6 @@ val tape = File("res/day5.txt")
     .split(",")
     .map { it.toInt() }
 
-//val testTape = listOf(3,9,7,9,10,9,4,9,99,-1,8)
-
 fun main() {
     val input = ArrayDeque<Int>()
     input.offer(5)
