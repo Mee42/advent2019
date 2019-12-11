@@ -25,21 +25,21 @@ val realInput = File("res/day8.txt")
     .readText()
 
 class Layer(private val pixels :Array<Array<Int>>) {
-    override fun toString(): String {
-        val s = StringBuilder()
-        for(x in pixels.indices) {
-            for(y in pixels[x].indices) {
-                when {
-                    !printTransparentAs2 && pixels[x][y] == 2 -> s.append("  ")
-                    printWhiteAsYes && pixels[x][y] == 1 -> s.append('█',' ')
-                    printWhiteAsYes && pixels[x][y] == 0 -> s.append("░ ")
-                    else -> s.append(pixels[x][y].toString(), ' ')
-                }
+override fun toString(): String {
+    val s = StringBuilder()
+    for(x in pixels.indices) {
+        for(y in pixels[x].indices) {
+            when {
+                !printTransparentAs2 && pixels[x][y] == 2 -> s.append(' ',' ')
+                printWhiteAsYes && pixels[x][y] == 1 -> s.append('█',' ')
+                printWhiteAsYes && pixels[x][y] == 0 -> s.append("░",' ')
+                else -> s.append(pixels[x][y].toString(), ' ')
             }
-            s.append('\n')
         }
-        return s.toString()
+        s.append('\n')
     }
+    return s.toString()
+}
     fun countOf(i :Int):Int {
         return pixels.sumBy { arr ->
             arr.count { it == i }
