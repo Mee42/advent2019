@@ -17,6 +17,7 @@
 
 package dev.mee42.day10
 
+import java.io.File
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.pow
@@ -65,8 +66,10 @@ const val inputString = """
 ...##
 """
 
+val realInput = File("res/day10.txt").readText()
+
 fun main() {
-    val world = parse(inputString)
+    val world = parse(realInput)
     world.stringer = { if(it) "1" else "0" }
     println(world)
 
@@ -83,7 +86,6 @@ fun main() {
                 Vector.of(xDis, yDis, sqrt(xDis.toDouble().pow(2) + yDis.toDouble().pow(2)))
             }
         }
-//        println(vectors)
         val leftOver = vectors.noneNull().filter { (point, vect) ->
             // vect is shortest vector with the same direction
             if (point == centerPoint) return@filter false
@@ -93,14 +95,11 @@ fun main() {
             if (other.isEmpty()) true
             else other.all { (_, otherVect) -> vect.length < otherVect.length }
         }
-//        println(leftOver)
-//        println(leftOver.size)
-        println("center point: $centerPoint")
-        println(world.map { point, _ ->
-            leftOver.firstOrNull { it.first == point }?.second
-        })
-        leftOver.size to centerPoint
-    }.maxBy { it.first }!!.second
+        println("center point: $centerPoint ${leftOver.size}")
+        leftOver.size to leftOver
+    }.maxBy { it.first }!!.second.size
+
+
     println(answer)
 }
 
@@ -124,11 +123,14 @@ class Vector private constructor(val xUp: Int, val yUp: Int, val length: Double)
             // simplify
             var xUp = xUp_
             var yUp = yUp_
-            for(divisor in 2..sqrt(max(xUp.absoluteValue,yUp.absoluteValue).toDouble()).plus(0.5).toInt()){
+            var divisor = 2
+            while(divisor <= max(xUp.absoluteValue,yUp.absoluteValue) + 1){
                 if(xUp.absoluteValue % divisor == 0 && yUp.absoluteValue % divisor == 0) {
                     // divide
                     xUp /= divisor
                     yUp /= divisor
+                } else {
+                    divisor++
                 }
             }
             if(xUp == 0) {
@@ -149,9 +151,8 @@ class Vector private constructor(val xUp: Int, val yUp: Int, val length: Double)
     }
 
     fun isSameDirection(other: Vector) :Boolean {
-        val result = xUp == other.xUp && yUp == other.yUp
-//        println(" $this and $other are " + if(result) "equal" else "not equal")
-        return result
+        //        println(" $this and $other are " + if(result) "equal" else "not equal")
+        return xUp == other.xUp && yUp == other.yUp && xUp.toDouble().div(yUp) == other.xUp.toDouble().div(other.yUp)
     }
 
     override fun equals(other: Any?): Boolean {
