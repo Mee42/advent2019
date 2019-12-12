@@ -18,10 +18,7 @@
 package dev.mee42.day10
 
 import java.io.File
-import kotlin.math.absoluteValue
-import kotlin.math.max
-import kotlin.math.pow
-import kotlin.math.sqrt
+import kotlin.math.*
 
 data class Point(val x: Int, val y: Int)
 class World<T>(private val arr: Array<Array<T>>) {
@@ -68,7 +65,7 @@ const val inputString = """
 
 val realInput = File("res/day10.txt").readText()
 
-fun main() {
+fun main1() {
     val world = parse(realInput)
     world.stringer = { if(it) "1" else "0" }
     println(world)
@@ -77,6 +74,10 @@ fun main() {
     // then, for any that are identical, eliminate the one with the longest length
 
     // let's start with the asteroid at (3,4)
+
+    
+//    val realCenterPoint = 28, 29
+
     val answer = world.asteroids().map { centerPoint ->
 
         val vectors = world.map { point, isAsteroid ->
@@ -96,11 +97,75 @@ fun main() {
             else other.all { (_, otherVect) -> vect.length < otherVect.length }
         }
         println("center point: $centerPoint ${leftOver.size}")
-        leftOver.size to leftOver
-    }.maxBy { it.first }!!.second.size
+        leftOver.size to centerPoint
+    }.maxBy { it.first }!!.second
 
 
     println(answer)
+}
+
+val exampleInput = """
+.#..##.###...#######
+##.############..##.
+.#.######.########.#
+.###.#######.####.#.
+#####.##.#.##.###.##
+..#####..#.#########
+####################
+#.####....###.#.#.##
+##.#################
+#####.##.###..####..
+..######..##.#######
+####.##.####...##..#
+.#####..#.######.###
+##...#.##########...
+#.##########.#######
+.####.#.###.###.#.##
+....##.##.###..#####
+.#.#.###########.###
+#.#.#.#####.####.###
+###.##.####.##.#..##
+""".trimIndent()
+
+fun main() {
+    val world = parse(realInput)
+    world.stringer = { if(it) "1" else "0" }
+    println(world)
+//    val centerPoint = Point(8, 3)
+//    val centerPoint = Point(11,13)
+    val centerPoint = Point(28,29)
+    val vectorField = world.map { point, isAsteroid ->
+        when {
+            centerPoint == point -> null
+            isAsteroid -> {
+                val xDis = point.x - centerPoint.x
+                val yDis = point.y - centerPoint.y
+                Vector.of(xDis, yDis, sqrt(xDis.toDouble().pow(2) + yDis.toDouble().pow(2)))
+            }
+            else -> null
+        }
+    }
+    println(vectorField)
+    var angle = -90.0 - 0.000001
+    var index = 0
+    fun clockwiseDistanceBetween(angle1: Double, angle2: Double) :Double {
+        return ((angle2 + 360) - angle1) % 360
+    }
+    val copy = vectorField.map<Int?> { _, _ -> null }
+    copy.stringer = { it?.toString() ?: "." }
+    vectorField.stringer = { if (it == null) "." else "#" }
+    while(vectorField.noneNull().isNotEmpty()) {
+        // find the point of the first asteroid that's the smallest value after `angle`
+        val destroy = vectorField.noneNull().minBy { clockwiseDistanceBetween(angle,it.second.direction()) * 1000 + it.second.length }!!
+        vectorField[destroy.first] = null
+        copy[destroy.first] = index + 1
+        angle = destroy.second.direction() + 0.001
+        println("" + ++index + ": $destroy")
+//        println(copy)
+        if(index == 200) {
+            println("=====")
+        }
+    }
 }
 
 
@@ -117,6 +182,7 @@ class Vector private constructor(val xUp: Int, val yUp: Int, val length: Double)
     override fun toString(): String {
         return "{$xUp,$yUp:${length.times(100).toInt().toDouble().div(100)}}"
     }
+
 
     companion object {
         fun of(xUp_: Int, yUp_: Int, length: Double) :Vector {
@@ -153,6 +219,10 @@ class Vector private constructor(val xUp: Int, val yUp: Int, val length: Double)
     fun isSameDirection(other: Vector) :Boolean {
         //        println(" $this and $other are " + if(result) "equal" else "not equal")
         return xUp == other.xUp && yUp == other.yUp && xUp.toDouble().div(yUp) == other.xUp.toDouble().div(other.yUp)
+    }
+
+    fun direction() : Double {
+        return Math.toDegrees(atan2(yUp.toDouble(), xUp.toDouble()))
     }
 
     override fun equals(other: Any?): Boolean {
